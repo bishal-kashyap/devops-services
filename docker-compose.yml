@@ -1,0 +1,17 @@
+version: '3'
+services:
+  s1:
+    build:
+      context: ./s1
+    ports:
+      - "8081:8081"
+  s2:
+    build:
+      context: ./s2
+    ports:
+      - "8082:8082"
+  s3:
+    build:
+      context: ./s3
+    ports:
+      - "8083:8083"

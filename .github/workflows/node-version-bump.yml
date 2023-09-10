@@ -1,0 +1,66 @@
+name: Update Node.js Version in s1, s2, and s3/package.json
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  update-node-version:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Extract Current Node.js Version from s1/package.json
+        id: extract-version
+        run: |
+          # Extract the current Node.js version from s1/package.json
+          current_version=$(jq -r '.engines.node' s1/package.json)
+          echo "::set-output name=current_version::$current_version"
+
+      - name: Calculate Desired Node.js Version
+        id: calculate-desired-version
+        run: |
+          # Get the current version from the previous step's output
+          current_version="${{ steps.extract-version.outputs.current_version }}"
+          
+          # Increment the current version by 1 (assuming it's a numeric version)
+          desired_version=$((current_version + 1))
+          echo "::set-output name=desired_version::$desired_version"
+
+      - name: Update Node.js Version in s1/package.json
+        run: |
+          # Get the desired version from the previous step's output
+          desired_version="${{ steps.calculate-desired-version.outputs.desired_version }}"
+          
+          # Use jq to update the "engines" field in s1/package.json
+          jq --arg desired_version "$desired_version" '.engines.node = $desired_version' s1/package.json > s1/package.json.tmp
+          mv s1/package.json.tmp s1/package.json
+
+      - name: Update Node.js Version in s2/package.json
+        run: |
+          # Get the desired version from the previous step's output
+          desired_version="${{ steps.calculate-desired-version.outputs.desired_version }}"
+          
+          # Use jq to update the "engines" field in s2/package.json
+          jq --arg desired_version "$desired_version" '.engines.node = $desired_version' s2/package.json > s2/package.json.tmp
+          mv s2/package.json.tmp s2/package.json
+
+      - name: Update Node.js Version in s3/package.json
+        run: |
+          # Get the desired version from the previous step's output
+          desired_version="${{ steps.calculate-desired-version.outputs.desired_version }}"
+          
+          # Use jq to update the "engines" field in s3/package.json
+          jq --arg desired_version "$desired_version" '.engines.node = $desired_version' s3/package.json > s3/package.json.tmp
+          mv s3/package.json.tmp s3/package.json
+
+      - name: Commit and Push package.json Updates
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add s1/package.json s2/package.json s3/package.json
+          git commit -m "Update Node.js version in s1, s2, and s3/package.json to $desired_version"
+          git push
