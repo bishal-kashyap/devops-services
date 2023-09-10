@@ -14,4 +14,5 @@ Run these commands to test:
 # Task 2:
 - `.github/workflows/node-version-bump.yml` is created to bump up the version of node.js in package.json file of every service on every push to master branch.
 - To test it, just add a comment in any file and the version will be updated to next one.
+// Testing the vwersion bump by commiting to master
 
